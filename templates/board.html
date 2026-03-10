@@ -1,0 +1,31 @@
+{% set columns = [('todo', 'Do Zrobienia'), ('in_progress', 'W Trakcie'), ('done', 'Gotowe')] %}
+{% for col_id, col_name in columns %}
+<div class="bg-white rounded-xl shadow-lg w-80 p-5 flex flex-col shrink-0 border border-slate-200">
+    <h2 class="font-bold mb-4 text-slate-700 flex justify-between uppercase text-xs tracking-widest">
+        {{ col_name }} <span>{{ tasks[col_id]|length }}</span>
+    </h2>
+    <div class="task-list space-y-3 min-h-[150px]" data-col="{{ col_id }}">
+        {% for task in tasks[col_id] %}
+        <div class="bg-white p-4 rounded-lg border border-slate-200 shadow-sm" data-id="{{ task.id }}">
+            <div class="flex justify-between items-start">
+                <h3 class="font-bold text-sm">{{ task.title }}</h3>
+                <div class="flex gap-2">
+                <button hx-get="/task/{{ task.id }}/edit" hx-target="#modal-container" class="text-indigo-500 hover:scale-110 transition">✎</button>
+                    <button hx-delete="/delete/{{ task.id }}" hx-target="#board-container" class="text-red-300 hover:text-red-600">&times;</button>
+
+                </div>
+            </div>
+            <div class="prose prose-sm mt-2 text-xs">
+                {{ task.content | markdown | safe }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <form hx-post="/add" hx-target="#board-container" class="mt-4 flex flex-col gap-2">
+        <input type="hidden" name="column" value="{{ col_id }}">
+        <input type="text" name="title" placeholder="Tytuł..." required class="border p-2 rounded text-sm outline-none focus:ring-1 focus:ring-indigo-400">
+        <button type="submit" class="bg-slate-800 text-white p-2 rounded text-xs font-bold hover:bg-slate-700">DODAJ</button>
+
+    </form>
+</div>
+{% endfor %}

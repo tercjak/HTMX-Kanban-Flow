@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>KANBAN PRO</title>
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    
+    <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
+    <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body class="bg-slate-100 p-10 font-sans">
+    
+    <h1 class="text-3xl font-black text-center mb-10 text-slate-800 tracking-tighter uppercase">KANBAN PRO</h1>
+    
+    <div id="board-container" class="flex gap-6 overflow-x-auto pb-10 justify-center">
+        {% include 'board.html' %}
+    </div>
+
+    <div id="modal-container"></div>
+
+    <script>
+        function initSortable() {
+            document.querySelectorAll('.task-list').forEach(col => {
+                new Sortable(col, {
+                    group: 'tasks',
+                    animation: 150,
+                    ghostClass: 'bg-indigo-100',
+                    onEnd: function (evt) {
+                        const taskId = evt.item.getAttribute('data-id');
+                        const toCol = evt.to.getAttribute('data-col');
+                        htmx.ajax('POST', `/move-drag/${taskId}/${toCol}`, {target: '#board-container'});
+                    }
+                });
+            });
+        }
+        document.addEventListener('DOMContentLoaded', initSortable);
+        document.addEventListener('htmx:afterSwap', initSortable);
+    </script>
+</body>
+</html>

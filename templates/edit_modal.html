@@ -1,0 +1,56 @@
+<div id="modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+        
+        <div class="p-4 border-b flex justify-between items-center bg-slate-50 rounded-t-xl">
+            <h2 class="font-black text-slate-800 tracking-tight text-sm">TRYB EDYCJI MARKDOWN</h2>
+            <button onclick="document.getElementById('modal-container').innerHTML=''" class="text-slate-400 hover:text-red-500 text-2xl leading-none">&times;</button>
+        </div>
+
+        <form id="edit-form" hx-post="/task/{{ task.id }}/edit" hx-target="#board-container" class="p-6 overflow-y-auto flex flex-col gap-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-400 mb-1 uppercase tracking-widest">Tytuł zadania</label>
+                <input type="text" name="title" value="{{ task.title }}" class="w-full border border-slate-200 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 outline-none font-semibold">
+            </div>
+
+            <div class="flex-grow">
+                <label class="block text-xs font-bold text-slate-400 mb-1 uppercase tracking-widest">Treść (wklej tabelę lub tekst)</label>
+                <textarea id="editor-{{ task.id }}" name="content">{{ task.content }}</textarea>
+            </div>
+
+            <div class="flex justify-end gap-3 mt-4 pt-4 border-t border-slate-50">
+                <button type="button" onclick="document.getElementById('modal-container').innerHTML=''" class="px-5 py-2 text-slate-500 font-bold hover:bg-slate-100 rounded-lg transition">Anuluj</button>
+                
+                <button type="submit" 
+                        onclick="forceSync()" 
+                        class="bg-indigo-600 text-white px-8 py-2 rounded-lg font-bold hover:bg-indigo-700 transition shadow-lg shadow-indigo-200">
+                    ZAPISZ ZMIANY
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Inicjalizacja edytora
+    var easyMDE = new EasyMDE({
+        element: document.getElementById('editor-{{ task.id }}'),
+        spellChecker: false,
+        nativeSpellcheck: false,
+        autofocus: true,
+        showIcons: ["code", "table", "clean-block", "horizontal-rule", "side-by-side"],
+        placeholder: "Tutaj wpisz treść...",
+        minHeight: "300px",
+        parsingConfig: {
+            allowAtxHeaderWithoutSpace: true,
+            strikethrough: true
+        }
+    });
+
+    // KLUCZOWA FUNKCJA: Przenosi tekst z EasyMDE z powrotem do ukrytego textarea
+    function forceSync() {
+        if (easyMDE) {
+            easyMDE.save(); // To polecenie przepisuje treść do pola <textarea name="content">
+            document.getElementById('modal-container').innerHTML = ''; // Zamyka modal po kliknięciu
+        }
+    }
+</script>
